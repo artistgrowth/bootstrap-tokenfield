@@ -4,6 +4,8 @@
  * Copyright 2013-2014 Sliptree and other contributors; Licensed MIT
  */
 
+// 2015.07.07 Typeahead.js 0.11.1 compatibility from https://github.com/sqs/bootstrap-tokenfield
+
 (function (factory) {
   if (typeof define === 'function' && define.amd) {
     // AMD. Register as an anonymous module.
@@ -204,7 +206,7 @@
       var _self = this
 
       if (typeof attrs === 'string') {
-        attrs = { value: attrs, label: attrs }
+        attrs = { val: attrs, label: attrs }
       } else {
         // Copy objects to prevent contamination of data sources.
         attrs = $.extend( {}, attrs )
@@ -215,11 +217,11 @@
       }
 
       // Normalize label and value
-      attrs.value = $.trim(attrs.value.toString());
-      attrs.label = attrs.label && attrs.label.length ? $.trim(attrs.label) : attrs.value
+      attrs.val = $.trim(attrs.val.toString());
+      attrs.label = attrs.label && attrs.label.length ? $.trim(attrs.label) : attrs.val
 
       // Bail out if has no value or label, or label is too short
-      if (!attrs.value.length || !attrs.label.length || attrs.label.length <= this.options.minLength) return
+      if (!attrs.val.length || !attrs.label.length || attrs.label.length <= this.options.minLength) return
 
       // Bail out if maximum number of tokens is reached
       if (this.options.limit && this.getTokens().length >= this.options.limit) return
@@ -376,14 +378,14 @@
 
       var separator = delimiter + ( beautify && delimiter !== ' ' ? ' ' : '')
       return $.map( this.getTokens(active), function (token) {
-        return token.value
+        return token.val
       }).join(separator)
   }
 
   , getInput: function() {
     return this.$input.val()
   }
-      
+
   , setInput: function (val) {
       if (this.$input.hasClass('tt-input')) {
           // Typeahead acts weird when simply setting input value to empty,
@@ -442,9 +444,9 @@
           }
           return false
         })
-        .on('typeahead:selected typeahead:autocompleted', function (e, datum, dataset) {
+        .on('typeahead:select typeahead:autocomplete', function (e, datum, dataset) {
           // Create token
-          if (_self.createToken( datum )) {
+          if (datum && _self.createToken( datum[0] )) {
             _self.$input.typeahead('val', '')
             if (_self.$input.data( 'edit' )) {
               _self.unedit(true)
@@ -466,7 +468,7 @@
       switch(e.keyCode) {
         case 8: // backspace
           if (!this.$input.is(document.activeElement)) break
-          this.lastInputValue = this.$input.val()
+          this.lastInputVal = this.$input.val()
           break
 
         case 37: // left arrow
@@ -579,7 +581,7 @@
       switch(e.keyCode) {
         case 8: // backspace
           if (this.$input.is(document.activeElement)) {
-            if (this.$input.val().length || this.lastInputValue.length && this.lastKeyDown === 8) break
+            if (this.$input.val().length || this.lastInputVal.length && this.lastKeyDown === 8) break
 
             this.preventDeactivation = true
             var $prevToken = this.$input.hasClass('tt-input') ? this.$input.parent().prevAll('.token:first') : this.$input.prevAll('.token:first')
@@ -780,7 +782,7 @@
       // Edit event can be cancelled if default is prevented
       if (editEvent.isDefaultPrevented()) return
 
-      $token.find('.token-label').text(attrs.value)
+      $token.find('.token-label').text(attrs.val)
       var tokenWidth = $token.outerWidth()
 
       var $_input = this.$input.hasClass('tt-input') ? this.$input.parent() : this.$input
@@ -789,7 +791,7 @@
 
       this.preventCreateTokens = true
 
-      this.$input.val( attrs.value )
+      this.$input.val( attrs.val )
                 .select()
                 .data( 'edit', true )
                 .width( tokenWidth )
@@ -869,19 +871,19 @@
      * Update tokenfield dimensions
      */
   , update: function (e) {
-      var value = this.$input.val()
+      var val = this.$input.val()
         , inputPaddingLeft = parseInt(this.$input.css('padding-left'), 10)
         , inputPaddingRight = parseInt(this.$input.css('padding-right'), 10)
         , inputPadding = inputPaddingLeft + inputPaddingRight
 
       if (this.$input.data('edit')) {
 
-        if (!value) {
-          value = this.$input.prop("placeholder")
+        if (!val) {
+          val = this.$input.prop("placeholder")
         }
-        if (value === this.$mirror.text()) return
+        if (val === this.$mirror.text()) return
 
-        this.$mirror.text(value)
+        this.$mirror.text(val)
 
         var mirrorWidth = this.$mirror.width() + 10;
         if ( mirrorWidth > this.$wrapper.width() ) {
@@ -893,7 +895,7 @@
       else {
         //temporary reset width to minimal value to get proper results
         this.$input.width(this.options.minWidth);
-        
+
         var w = (this.textDirection === 'rtl')
               ? this.$input.offset().left + this.$input.outerWidth() - this.$wrapper.offset().left - parseInt(this.$wrapper.css('padding-left'), 10) - inputPadding - 1
               : this.$wrapper.offset().left + this.$wrapper.width() + parseInt(this.$wrapper.css('padding-left'), 10) - this.$input.offset().left - inputPadding;
