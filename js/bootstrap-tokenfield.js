@@ -4,7 +4,9 @@
  * Copyright 2013-2014 Sliptree and other contributors; Licensed MIT
  */
 
-// 2015.07.07 Typeahead.js 0.11.1 compatibility from https://github.com/sqs/bootstrap-tokenfield
+// 2015.07.07 JAP Typeahead.js 0.11.1 compatibility from https://github.com/sqs/bootstrap-tokenfield
+// 2015.07.07 JAP Integrate Typeahead input hint fix from
+//                https://github.com/sqs/bootstrap-tokenfield/commit/f539087f9de575f1af248e07e0a467ca97d12bc7
 
 (function (factory) {
   if (typeof define === 'function' && define.amd) {
@@ -194,6 +196,7 @@
       args[0] = $.extend( {}, defaults, args[0] )
 
       this.$input.typeahead.apply( this.$input, args )
+      this.$hint = this.$input.prev('.tt-hint');
       this.typeahead = true
     }
   }
@@ -891,6 +894,10 @@
         }
 
         this.$input.width( mirrorWidth )
+
+        if (this.$hint) {
+          this.$hint.width( mirrorWidth );
+        }
       }
       else {
         //temporary reset width to minimal value to get proper results
@@ -904,6 +911,10 @@
         // dimensions returned by jquery will be NaN -> we default to 100%
         // so placeholder won't be cut off.
         isNaN(w) ? this.$input.width('100%') : this.$input.width(w);
+
+        if (this.$hint) {
+          isNaN(w) ? this.$hint.width('100%') : this.$hint.width(w);
+        }
       }
     }
 
