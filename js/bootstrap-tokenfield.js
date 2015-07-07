@@ -451,7 +451,11 @@
         })
         .on('typeahead:select typeahead:autocomplete', function (e, datum, dataset) {
           // Create token
-          if (datum && _self.createToken( datum[0] )) {
+          if ($.isArray(datum)) {
+              datum = datum[0];
+          }
+
+          if (datum && _self.createToken( datum )) {
             _self.$input.typeahead('val', '')
             if (_self.$input.data( 'edit' )) {
               _self.unedit(true)
