@@ -5,8 +5,10 @@
  */
 
 // 2015.07.07 JAP Typeahead.js 0.11.1 compatibility from https://github.com/sqs/bootstrap-tokenfield
-// 2015.07.07 JAP Integrate Typeahead input hint fix from
+//                Integrate Typeahead input hint fix from
 //                https://github.com/sqs/bootstrap-tokenfield/commit/f539087f9de575f1af248e07e0a467ca97d12bc7
+//                Add tokenfield:activatetoken event from
+//                https://github.com/sqs/bootstrap-tokenfield/commit/0def1a6acaaf41e2ee95d29d4eab205647be9161
 
 (function (factory) {
   if (typeof define === 'function' && define.amd) {
@@ -723,8 +725,6 @@
 
       if (multi) var add = true
 
-      this.$copyHelper.focus()
-
       if (!add) {
         this.$wrapper.find('.active').removeClass('active')
         if (remember) {
@@ -745,6 +745,13 @@
           _self.activate( $(this), true )
         })
       }
+
+      // Allow canceling activation
+      var activateEvent = $.Event('tokenfield:activatetoken', { relatedTarget: $token })
+      this.$element.trigger(activateEvent)
+      if (activateEvent.isDefaultPrevented()) return
+
+      this.$copyHelper.focus()
 
       $token.addClass('active')
       this.$copyHelper.val( this.getTokensList( null, null, true ) ).select()
